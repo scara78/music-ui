@@ -4,6 +4,19 @@ Cadence is a local-first web studio for MiniMax Music 3. It combines a focused c
 generation history, detailed parameter inspection, downloads, and a persistent audio player in an
 original light/dark interface inspired by the workflow patterns of modern music tools.
 
+"Local-first" refers to history and generated audio being kept on your machine. Music generation is
+not offline: prompts, lyrics, and cover references are sent to MiniMax. Cadence currently has no
+authentication and is intended for a trusted, single-user localhost; do not expose it directly to
+the public internet.
+
+## Screenshots
+
+![Cadence song composer with recent generations](docs/screenshots/cadence-create.png)
+
+| Library                                                                        | Lyrics and covers                                                                  |
+| :----------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| ![Cadence library with generated tracks](docs/screenshots/cadence-library.png) | ![Cadence lyrics and covers workspace](docs/screenshots/cadence-lyrics-covers.png) |
+
 ## Launch with Docker
 
 1. Copy `.env.example` to `.env` and set `MINIMAX_API_KEY`.
@@ -15,12 +28,14 @@ original light/dark interface inspired by the workflow patterns of modern music 
 
 3. Open [http://localhost:4321](http://localhost:4321).
 
-Stop it with `docker compose down`. The named `music_data` volume keeps the SQLite database and
-generated audio between launches. Running `docker compose down -v` also removes that volume and
-permanently deletes local history and audio.
+Set `APP_PORT` in `.env` before starting the stack if port `4321` is already in use.
 
-The API key is read only by the Deno API container. It is never bundled into the Astro frontend,
-returned by an endpoint, or stored with generation records.
+Stop it with `docker compose down`. The Compose-managed data volume declared as `music_data` keeps
+the SQLite database and generated audio between launches. Running `docker compose down -v` also
+removes that project-scoped volume and permanently deletes local history and audio.
+
+The API key is injected only into the Deno API container. It is never bundled into the Astro
+frontend, returned by an endpoint, or stored with generation records.
 
 ## Deno development workflow
 
@@ -51,18 +66,23 @@ deno task build
 deno task verify    # all of the above as one release gate
 ```
 
+With the Docker stack already running, `deno task smoke:live` performs a real MiniMax request. It
+creates a track and consumes provider quota, so it is intentionally excluded from `verify`.
+
 ## What is implemented
 
 - MiniMax `music-3.0-free` and `music-3.0` text-to-music generation
 - quick auto-lyrics, dedicated full-song lyric generation/editing, custom lyrics, and instrumentals
 - one-step URL/upload covers and two-step preprocess/edit/generate covers
 - all documented Music 3 audio settings: format, sample rate, and bitrate
-- a sequential durable queue respecting the free model's 3 RPM limit
-- local history with status, prompt, lyrics, settings, errors, trace ID, and retry lineage
+- a sequential queue respecting the free model's 3 RPM limit; queued work survives restarts, while
+  an interrupted in-flight request is marked failed for explicit retry
+- local history with status, prompt, lyrics, settings, errors, trace ID, and internal retry lineage
 - immediate download of MiniMax's 24-hour result URL into owned local storage
-- protected media delivery with HTTP byte ranges for seeking
-- searchable/filterable paginated library, parameter reuse, retry, rename, removal, details,
-  correctly named downloads, and playback
+- same-origin, tenant-scoped media delivery with HTTP byte ranges for seeking
+- a paginated library with client-side search and status filtering of loaded results, parameter
+  reuse, retry, rename, removal, details, and correctly named downloads
+- browser playback for MP3 and WAV results; PCM output remains available for download
 - tenant-scoped database queries and media paths, with a fixed local tenant until authentication is
   added
 - responsive desktop/mobile layouts and persistent light/dark theme
@@ -109,8 +129,3 @@ See [docs/API.md](docs/API.md) for the exact MiniMax/API contract and
 | `DELETE` | `/api/generations/:id`       | remove completed/failed metadata and stored audio |
 | `POST`   | `/api/generations/:id/retry` | create an explicit linked retry                   |
 | `GET`    | `/api/generations/:id/audio` | tenant-scoped audio with Range support            |
-
-## Credential note
-
-`.env` is ignored by source control. If a key has been shared through chat, logs, screenshots, or
-another collaborative surface, rotate it in MiniMax after testing and replace the local value.
