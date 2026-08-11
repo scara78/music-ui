@@ -1,0 +1,35 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - .env
+    environment:
+      DATABASE_PATH: /data/music.db
+      AUDIO_STORAGE_PATH: /data/audio
+      API_PORT: 8787
+      API_HOST: 0.0.0.0
+    volumes:
+      - music_data:/data
+    healthcheck:
+      test: ["CMD", "deno", "eval", "fetch('http://127.0.0.1:8787/api/health').then(r=>{if(!r.ok)throw Error(r.status)})"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${APP_PORT:-4321}:80"
+    restart: unless-stopped
+
+volumes:
+  music_data:

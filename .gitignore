@@ -1,0 +1,38 @@
+.env
+.env.*
+!.env.example
+
+# Dependencies and package-manager caches
+node_modules/
+.pnpm-store/
+
+# Generated application output
+dist/
+build/
+.output/
+.vite/
+.astro/
+
+# Test and tooling output
+coverage/
+coverage-*/
+*.lcov
+*.tsbuildinfo
+.eslintcache
+
+# Local runtime data
+data/
+*.db
+*.db-shm
+*.db-wal
+*.log
+tmp/
+temp/
+
+# Editor and operating-system files
+.idea/
+.vscode/
+.fleet/
+.DS_Store
+Thumbs.db
+Desktop.ini

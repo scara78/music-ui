@@ -1,0 +1,12 @@
+{
+  "nodeModulesDir": "none",
+  "imports": {
+    "@contracts/": "../../packages/contracts/src/",
+    "hono": "npm:hono@4.13.1",
+    "zod": "npm:zod@4.4.3"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true
+  }
+}

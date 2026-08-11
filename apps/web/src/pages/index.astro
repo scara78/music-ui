@@ -1,0 +1,21 @@
+---
+import MusicStudio from "../ui/MusicStudio";
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="A private creative workspace for MiniMax Music 3." />
+    <meta name="theme-color" content="#11101a" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♫</text></svg>" />
+    <title>Cadence — MiniMax Music Studio</title>
+  </head>
+  <body>
+    <MusicStudio client:only="react">
+      <div slot="fallback" class="boot-screen">Loading your studio…</div>
+    </MusicStudio>
+  </body>
+</html>

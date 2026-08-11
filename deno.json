@@ -1,0 +1,58 @@
+{
+  "nodeModulesDir": "auto",
+  "imports": {
+    "@contracts": "./packages/contracts/src/index.ts",
+    "@contracts/": "./packages/contracts/src/",
+    "@testing-library/jest-dom": "npm:@testing-library/jest-dom@7.0.1",
+    "@testing-library/react": "npm:@testing-library/react@16.3.2",
+    "@testing-library/user-event": "npm:@testing-library/user-event@14.6.3",
+    "@types/node": "npm:@types/node@24",
+    "@types/react": "npm:@types/react@19",
+    "@types/react-dom": "npm:@types/react-dom@19",
+    "@vitest/coverage-v8": "npm:@vitest/coverage-v8@4.1.10",
+    "hono": "npm:hono@4.13.1",
+    "jsdom": "npm:jsdom@30.0.1",
+    "lucide-react": "npm:lucide-react@1.31.0",
+    "react": "npm:react@19.2.8",
+    "react/": "npm:react@19.2.8/",
+    "react-dom": "npm:react-dom@19.2.8",
+    "react-dom/": "npm:react-dom@19.2.8/",
+    "typescript": "npm:typescript@6.0.3",
+    "vitest": "npm:vitest@4.1.10",
+    "vitest/": "npm:vitest@4.1.10/",
+    "zod": "npm:zod@4.4.3"
+  },
+  "tasks": {
+    "setup:web": "corepack pnpm@11.21.0 --dir apps/web install --frozen-lockfile",
+    "dev:web": "corepack pnpm@11.21.0 --dir apps/web dev",
+    "dev:api": "deno run --env-file=.env --allow-net --allow-env --allow-read --allow-write --watch apps/api/src/server.ts",
+    "start:api": "deno run --allow-net --allow-env --allow-read --allow-write apps/api/src/server.ts",
+    "build:web": "corepack pnpm@11.21.0 --dir apps/web build",
+    "build": "deno task build:web",
+    "check:web": "corepack pnpm@11.21.0 --dir apps/web check",
+    "check:api": "deno check apps/api/src/server.ts scripts/live-smoke.ts",
+    "check": "deno task check:web && deno task check:api",
+    "fmt": "deno fmt deno.json apps packages scripts docs README.md",
+    "fmt:check": "deno fmt --check deno.json apps packages scripts docs README.md",
+    "lint": "deno lint apps packages scripts",
+    "test:web": "deno run -A npm:vitest@4.1.10 run --config apps/web/vitest.config.ts --coverage",
+    "test:api": "deno test --allow-env --allow-read --allow-write --allow-net=127.0.0.1 --coverage=coverage/api --coverage-raw-data-only --clean apps/api/test && deno coverage --include=apps/api/src/ --detailed --threshold=100 coverage/api",
+    "test": "deno task test:web && deno task test:api",
+    "smoke:live": "deno run --allow-net=127.0.0.1:4321 scripts/live-smoke.ts",
+    "verify": "deno task fmt:check && deno task lint && deno task check && deno task test && deno task build"
+  },
+  "fmt": {
+    "lineWidth": 100,
+    "semiColons": true,
+    "singleQuote": false
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true
+  }
+}
