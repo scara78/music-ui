@@ -13,6 +13,7 @@ RUN pnpm run build
 
 # ─── Stage 2: Cache Deno dependencies ────────────────────────────────────────
 FROM denoland/deno:2.9.5 AS api-cache
+ENV DENO_DIR=/deno-cache
 WORKDIR /app
 COPY packages/contracts ./packages/contracts
 COPY apps/api ./apps/api
@@ -32,7 +33,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -fsSL https://deno.land/x/install/install.sh | DENO_INSTALL=/usr/local sh -s v2.9.5
 
 # Copy Deno cache and source from api-cache stage
-COPY --from=api-cache /root/.deno /root/.deno
+ENV DENO_DIR=/deno-cache
+COPY --from=api-cache /deno-cache /deno-cache
 COPY --from=api-cache /app /app
 
 # Copy built frontend
