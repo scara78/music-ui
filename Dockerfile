@@ -26,7 +26,6 @@ FROM nginx:1.29-bookworm
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     unzip \
-    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Deno binary
@@ -48,12 +47,13 @@ RUN sed -i 's|http://api:8787|http://127.0.0.1:8787|g' /etc/nginx/conf.d/default
 # Persistent data directory
 RUN mkdir -p /data/audio
 
-# supervisord config
-COPY supervisord.conf /etc/supervisor/conf.d/cadence.conf
+# Entrypoint: start API first, wait for readiness, then start nginx
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 EXPOSE 80
 
-HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
     CMD curl -fs http://127.0.0.1/api/health || exit 1
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/cadence.conf"]
+CMD ["/docker-entrypoint.sh"]
